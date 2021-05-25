@@ -1,0 +1,107 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3acd6fe57257048db802c1c4c2b75248, type: 3}
+  m_Name: uRaymarchingGears
+  m_EditorClassIdentifier: 
+  shaderName: uRaymarchingGears
+  shaderReference: {fileID: 4800000, guid: 516843be2f649334da05d81d86fdc191, type: 3}
+  shaderTemplate: uRaymarching/Deferred/Standard
+  variables:
+  - key: Name
+    value: uRaymarchingGears
+  - key: ObjectShape
+    value: NONE
+  - key: RaymarchingShaderDirectory
+    value: Assets\uRaymarching\Shaders\Include\Legacy
+  conditions:
+  - key: ShadowCaster
+    value: 0
+  - key: FullScreen
+    value: 1
+  - key: WorldSpace
+    value: 1
+  - key: FollowObjectScale
+    value: 0
+  - key: CameraInsideObject
+    value: 1
+  - key: UseRaymarchingDepth
+    value: 1
+  - key: FallbackToDiffuse
+    value: 1
+  - key: SphericalHarmonicsPerPixel
+    value: 1
+  - key: FallbackToStandardShader
+    value: 0
+  blocks:
+  - key: Properties
+    value: "        [Header(Gear)]\n        _GearFoldRotate (\"Gear Fold Rotate\",
+      Range(1, 20)) = 6\n        [HDR] _EmissionColor (\"Emission Color\", Color)
+      = (1, 1, 1, 1)\n        _EmissionY (\"Emission Y\", Float) = 0\n        _GearRepeat
+      (\"Gear Repeat\", Vector) = (10, 10, 10, 1)\n        _BoxASize (\"Box A Size\",
+      Vector) = (1, 4, 1, 1)\n        _BoxAMove (\"Box A Move\", Vector) = (1, 1,
+      1, 1)\n        _BoxBRepeat (\"Box B Repeat\", Range(0, 2)) = 0.2\n        _BoxBSize
+      (\"Box B Size\", Vector) = (1, 4, 1, 1)\n        _BoxBMove (\"Box B Move\",
+      Vector) = (1, 1, 1, 1)\n\n        [Header(Pillar)]\n        _PillarFoldRotate
+      (\"Pillar Fold Rotate\", Range(1, 20)) = 3\n        _PillarRepeat (\"Pillar
+      Repeat\", Vector) = (100, 2, 100, 1)\n        _PillarSize (\"Pillar Size\",
+      Vector) = (0.67, 0.11, 3.77, 1)\n        _PillarMove (\"Pillar Move\", Vector)
+      = (0, 0, 0, 1)"
+    folded: 0
+  - key: DistanceFunction
+    value: "        #define TAU 6.28318530718\n\n        float sdBox(float3 p, float3
+      b)\n        {\n            float3 q = abs(p) - b;\n            return length(max(q,
+      0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);\n        }\n\n        float2x2 rotate(in
+      float a)\n        {\n            float s = sin(a), c = cos(a);\n           
+      return float2x2(c, s, -s, c);\n        }\n\n        // https://www.shadertoy.com/view/Mlf3Wj\n       
+      float2 foldRotate(in float2 p, in float n)\n        {\n            float a
+      = PI / n - atan2(p.x, p.y);\n            float b = TAU / n;\n            a
+      = floor(a / b) * b;\n            p = mul(rotate(a), p);\n            return
+      p;\n        }\n\n        float opRepLim(float p, float c, float l)\n       
+      {\n            return p - c * clamp(round(p / c), -l, l);\n        }\n\n       
+      float _GearFoldRotate;\n        float3 _GearRepeat;\n\n        float3 _BoxASize;\n       
+      float3 _BoxAMove;\n\n        float _BoxBRepeat;\n        float3 _BoxBSize;\n       
+      float3 _BoxBMove;\n\n        float _PillarFoldRotate;\n        float3 _PillarRepeat;\n       
+      float3 _PillarSize;\n        float3 _PillarMove;\n\n        float dGearA(float3
+      p)\n        {\n            p = Repeat(p, _GearRepeat);\n            p.xz =
+      foldRotate(p.xz, _GearFoldRotate);\n            p = abs(p);\n            p
+      -= _BoxAMove;\n\n            return sdBox(p, _BoxASize);\n        }\n\n       
+      float dGearB(float3 p)\n        {\n            p = Repeat(p, _GearRepeat);\n           
+      p.xz = foldRotate(p.xz, _GearFoldRotate);\n            p = abs(p);\n           
+      p -= _BoxAMove;\n            p.y = opRepLim(p.y, _BoxBRepeat, 5);\n           
+      p -= _BoxBMove;\n            \n            return sdBox(p, _BoxBSize);\n       
+      }\n\n        float dPillar(float3 p)\n        {\n            p = Repeat(p,
+      _PillarRepeat);\n            p.xz = foldRotate(p.xz, _PillarFoldRotate);\n           
+      p = abs(p);\n            p -= _PillarMove;\n\n            return sdBox(p, _PillarSize);\n       
+      }\n\n        inline float DistanceFunction(float3 p)\n        {\n           
+      // \u30AE\u30A2\n            float d = dGearA(p);\n            d = min(d, dGearB(p));\n\n           
+      // \u67F1\n            d = min(d, dPillar(p));\n\n            return d;\n       
+      }"
+    folded: 0
+  - key: PostEffect
+    value: "        half4 _EmissionColor;\n        float _EmissionY;\n\n        inline
+      void PostEffect(RaymarchInfo ray, inout PostEffectOutput o)\n        {\n           
+      float3 p = ray.endPos;\n\n            // GearA\u306EEmission\u8A2D\u5B9A\n           
+      if (dGearA(p) < ray.minDistance && (Mod(p.y, _GearRepeat.y) - _EmissionY) <
+      0.2)\n            {\n                o.Emission = _EmissionColor;\n           
+      }\n\n            // GearB\u306EEmission\u8A2D\u5B9A\n            if (dGearB(p)
+      < ray.minDistance && abs(o.Normal.y) < 0.1)\n            {\n               
+      o.Emission = _EmissionColor;\n            }\n\n            // Pillar\u306E\u30DE\u30C6\u30EA\u30A2\u30EB\u5909\u66F4\n           
+      if (dPillar(p) < ray.minDistance)\n            {\n                o.Smoothness
+      = 0.95;\n                o.Metallic = 1;\n                o.Occlusion = 0;\n               
+      o.Albedo = half3(1, 1, 1);\n            }\n        }"
+    folded: 0
+  constants: {fileID: 11400000, guid: b54b57bcc672e49638fe9b2da609c4df, type: 2}
+  basicFolded: 0
+  conditionsFolded: 0
+  variablesFolded: 0
+  materialsFolded: 0
+  constantsFolded: 0
