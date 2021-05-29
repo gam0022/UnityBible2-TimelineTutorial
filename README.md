@@ -2,6 +2,8 @@
 
 [『Unityゲーム プログラミング・バイブル 2nd Generation』](https://amzn.to/3oe2agf)の「Timelineによる映像制作」向けのサンプルプロジェクトです。
 
+![Timelineによる映像制作](Images/Collage_Fotor.png)
+
 [TimelineTutorial/Assets/TimelineTutorial](TimelineTutorial/Assets/TimelineTutorial)に合計12個のサンプルシーンがあります。
 
 少しずつ処理を加えることで、一歩ずつレベルアップしながら理解を深められるチュートリアル形式のサンプルシーンになっています。
