@@ -1,6 +1,6 @@
 # Timelineによる映像制作
 
-[『Unityゲーム プログラミング・バイブル 2nd Generation』](https://amzn.to/3oe2agf)の「Timelineによる映像制作」向けのサンプルプロジェクトです。
+[『Unityゲーム プログラミング・バイブル 2nd Generation』](https://amzn.to/3oe2agf)の「No.08 Timelineによる映像制作」向けのサンプルプロジェクトです。
 
 ![Timelineによる映像制作](Images/Collage_Fotor.png)
 
